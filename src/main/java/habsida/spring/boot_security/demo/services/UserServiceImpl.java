@@ -16,17 +16,12 @@ import java.util.List;
 public class UserServiceImpl implements UserService{
 
     List<User> addIfEmpty = new ArrayList<>(Arrays.asList(
-            new User("Ivan", "Sidorov", "ivan@mail.ru", "ivan", "ivan",
+            new User("Ivan", "Sidorov", "ivan@gmail.com",  "ivan",
                     new ArrayList<>(Arrays.asList(new Role("USER")))),
-            new User("Oleg", "Semyonov", "oleg@gmail.ru", "oleg", "oleg",
+            new User("Oleg", "Semyonov", "oleg@gmail.com",  "oleg",
                     new ArrayList<>(Arrays.asList(new Role("USER"), new Role("ADMIN")))),
-            new User("Denis", "Komarov", "den273@mail.ru", "denis", "denis",
+            new User("Denis", "Komarov", "denis@gmail.com", "denis",
                     new ArrayList<>(Arrays.asList(new Role("ADMIN"))))
-//            ,
-//            new User("Oleg", "Semyonov","oleg@gmail.ru"),
-//            new User("Dmitriy", "Petrov","dimasik@gmail.com"),
-//            new User("Denis", "Komarov","den273@mail.ru"),
-//            new User("Sergey", "Fedorov","serega374@gmail.com")
     ));
 
     private  UserDao userDao;
@@ -61,6 +56,7 @@ public class UserServiceImpl implements UserService{
         if (user.getFirstName() != "" &&
                 user.getLastName() != "" &&
                 user.getEmail() != "") {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             userDao.modify(user);
         }
     }
@@ -75,6 +71,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<User> listUsers() {
         List<User> listUsers = userDao.listUsers();
+
         if (listUsers.size() == 0){
             addIfEmpty.stream().forEach(t-> this.add(t));
             listUsers = List.copyOf(addIfEmpty);

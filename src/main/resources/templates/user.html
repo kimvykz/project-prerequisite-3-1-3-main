@@ -4,44 +4,132 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${UserTitle}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
 </head>
 <body>
-<div align="center">
-    <h1 th:text="${UserTitle + '. Welcome!'}"></h1>
+<div class="bg-light">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark text-white fw-bold">
+        <!-- Navbar content -->
+        <div class="container-xxl">
+
+            <a th:text="${authName} + ' with roles ' + ${authRole}">user@gmail.com with roles [Admin]</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav" aria-controls="main-nam" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-end align-center" id="main-nav">
+                <ul class="navbar-nav">
+                    <li class="nav-item ms-2 d-none d-md-inline">
+                        <a class="btn btn-secondary text-light" th:href="@{/logout}">Logout</a>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Боковое меню (Sidebar) -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-white sidebar">
+                <!-- Здесь можно разместить содержимое бокового меню -->
+                <div class="position-sticky">
+                    <ul class="nav flex-column nav-pills nav-justified">
+                        <div th:if="${authRole.contains('ADMIN')}">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="@{${adminControllerPage}}">
+                                    Admin
+                                </a>
+                            </li>
+                        </div>
+                        <div th:if="${authRole.contains('USER') or authRole.contains('ADMIN')}">
+                            <li class="nav-item">
+                                <a class="nav-link active" th:href="@{${userControllerPage}}">
+                                    User
+                                </a>
+                            </li>
+                        </div>
+                    </ul>
+                </div>
+            </nav>
 
 
-    <br><br>
+            <!-- Основная рабочая область (Main Content) -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <p class="h3 m-4">User Information Page</p>
+                
+                <!-- Здесь можно разместить основное содержимое страницы -->
+                <!-- Tab меню -->
+                <!-- <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#tab1">All Users</a>
+                        
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#tab2">New User</a>
+                    </li>
+                </ul> -->
+                <div class="card" >
+                    <div class="card-header">
+                      List of users
+                    </div>
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item">
+                                <!-- Содержимое вкладок -->
+                        <div class="tab-content-fluid">
+                            <div class="fade show active" id="tab1">
+                                <div class="container bg-white">
+                                    <br>
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>Id</th>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>E-Mail</th>
+                                            <th>Roles</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:if="${ListOfUsers.empty}">
+                                            <td colspan="5">No users available</td>
+                                        </tr>
+                                        <tr th:each="user : ${ListOfUsers}">
+                                            <td><span th:text="${user.id}"></td>
+                                            <td><span th:text="${user.firstName}"></td>
+                                            <td><span th:text="${user.lastName}"></td>
+                                            <td><span th:text="${user.email}"></td>
+                                            <td>
 
-    <table border="1" cellpadding="5">
-        <thead>
-        <tr>
-            <th>Id</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>E-Mail</th>
-            <th>Login</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:if="${ListOfUsers.empty}">
-            <td colspan="5">No users available</td>
-        </tr>
-        <tr th:each="user : ${ListOfUsers}">
-            <td><span th:text="${user.id}"></td>
-            <td><span th:text="${user.firstName}"></td>
-            <td><span th:text="${user.lastName}"></td>
-            <td><span th:text="${user.email}"></td>
-            <td>
-                <span th:text="${user.username}">
-            </td>
-        </tr>
+                                                <span th:text="${user.getRolesSet()}">
 
-        </tbody>
-    </table>
-    <br>
-    <a th:href="@{/}">go back</a>
-    <br><br><a th:href="@{/logout}">Log out</a>
+                                            </td>
+                                        </tr>
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+        <!--                    <div class="tab-pane fade" id="tab2">-->
+        <!--                        Содержимое второй вкладки-->
+        <!--                    </div>-->
+                        </div>
+
+                        </li>
+                    </ul>
+                </div>
+            </main>
+        </div>
+    </div>
+
 </div>
 
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
 </body>
 </html>
+
+

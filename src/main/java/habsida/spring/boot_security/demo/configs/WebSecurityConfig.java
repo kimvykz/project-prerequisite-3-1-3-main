@@ -49,12 +49,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/", "/index").permitAll()
+                .antMatchers("/login").permitAll()
                 .antMatchers("/admin","/user_create", "/user_modify","/update","/delete").hasAnyAuthority("ADMIN")
-                .antMatchers("/user").hasAnyAuthority("USER", "ADMIN")
+                .antMatchers("/user", "/index", "/").hasAnyAuthority("USER", "ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .formLogin().successHandler(successUserHandler)
+                .formLogin()
+                    .loginPage("/login")
+                    .usernameParameter("email")
+                    .successHandler(successUserHandler)
                 .permitAll()
                 .and()
                 .logout()

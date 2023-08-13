@@ -6,13 +6,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 @Data
 @NoArgsConstructor
 public class User implements UserDetails {
@@ -27,9 +25,6 @@ public class User implements UserDetails {
     @Column(name = "email")
     private String email;
 
-    @Column(name="username")
-    private String username;
-
     @Column(name="password")
     private String password;
 
@@ -38,12 +33,10 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<Role> roles = new ArrayList<>();
 
-    public User(String firstName, String lastName, String email,
-                String username, String password, List<Role> roles){
+    public User(String firstName, String lastName, String email, String password, List<Role> roles){
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.username = username;
         this.password = password;
         this.roles = roles;
     }
@@ -55,7 +48,6 @@ public class User implements UserDetails {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", userName='" + username + '\'' +
                 ", userRoles='" + roles.stream().map(Role::getName)
                                 .collect(Collectors.joining("-")) + '\'' +
                 '}';
@@ -68,8 +60,9 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return this.email;
     }
+
 
     @Override
     public boolean isAccountNonExpired() {
@@ -89,5 +82,13 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Set<String> getRolesSet(){
+        Set<String> res = new HashSet<>();
+        for (Role r : this.roles) {
+            res.add(r.getName());
+        }
+        return res;
     }
 }

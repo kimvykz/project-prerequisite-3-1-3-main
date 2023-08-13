@@ -4,6 +4,7 @@ import habsida.spring.boot_security.demo.models.User;
 import habsida.spring.boot_security.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -13,14 +14,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class UserController {
 
+    private User userForMod;
     private UserService userService;
 
     @Autowired
@@ -29,7 +28,14 @@ public class UserController {
     }
 
     @GetMapping(value="/user")
-    public String getUserForm(Model model){
+    public String getUserForm(Model model, Authentication auth){
+        Set<String> roles = AuthorityUtils.authorityListToSet(auth.getAuthorities());
+        model.addAttribute("authName", auth.getName());
+        model.addAttribute("authRole", AuthorityUtils.authorityListToSet(auth.getAuthorities()));
+
+        model.addAttribute("userControllerPage", "user");
+        model.addAttribute("adminControllerPage", "admin");
+
         List<User> listUsers = userService.listUsers();
         model.addAttribute("UserTitle", "User page");
         model.addAttribute("ListOfUsers", listUsers);
@@ -37,16 +43,31 @@ public class UserController {
     }
 
     @GetMapping(value="/admin")
-    public String getAdminForm(Model model) {
+    public String getAdminForm(Map<String, Object> model, Authentication auth) {
+        Set<String> roles = AuthorityUtils.authorityListToSet(auth.getAuthorities());
+        model.put("authName", auth.getName());
+        model.put("authRole", AuthorityUtils.authorityListToSet(auth.getAuthorities()));
+
+        model.put("userControllerPage", "user");
+        model.put("adminControllerPage", "admin");
+
+//        userForMod = new User();
+//        model.put("userForMod", userForMod);
 
         List<User> listUsers = userService.listUsers();
-        model.addAttribute("UserTitle", "Admin Controller page");
-        model.addAttribute("ListOfUsers", listUsers);
+        model.put("UserTitle", "Admin Controller page");
+        model.put("ListOfUsers", listUsers);
         return "admin";
     }
 
     @GetMapping(value="/user_create")
-    public String createUser(Map<String, Object> model){
+    public String createUser(Map<String, Object> model, Authentication auth){
+        Set<String> roles = AuthorityUtils.authorityListToSet(auth.getAuthorities());
+        model.put("authName", auth.getName());
+        model.put("authRole", AuthorityUtils.authorityListToSet(auth.getAuthorities()));
+
+        model.put("userControllerPage", "user");
+        model.put("adminControllerPage", "admin");
         User newUser = new User();
         model.put("newuser", newUser);
         return"user_create";
@@ -62,18 +83,19 @@ public class UserController {
     public String modifyUser(@RequestParam Long id, Map<String, Object> model){
         User userForMod = userService.findUserById(id);
         model.put("userForMod", userForMod);
-        return "user_modify";
+        return "redirect:/admin";
     }
 
-    @RequestMapping(value="/update", method = RequestMethod.POST)
-    public String updateUser(@ModelAttribute("userForMod") User user){
-
+    @PostMapping(value="/update/{id}")
+    public String updateUser(@PathVariable Long id, @ModelAttribute("user") User user){
+        System.out.println("test ----- " + user.getId());
+        System.out.println("test ----- " + user.toString());
         userService.modify(user);
         return "redirect:/admin";
     }
 
-    @GetMapping(value="/delete")
-    public String deleteUser(@RequestParam Long id){
+    @PostMapping(value="/delete/{id}")
+    public String deleteUser(@PathVariable("id") Long id){
         User userForDel = userService.findUserById(id);
         userService.remove(userForDel);
         return "redirect:/admin";
@@ -85,6 +107,6 @@ public class UserController {
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
-        return "redirect:/login?logout";
+        return "redirect:/login";
     }
 }
