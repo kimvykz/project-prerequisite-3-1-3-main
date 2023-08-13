@@ -51,9 +51,6 @@ public class UserController {
         model.put("userControllerPage", "user");
         model.put("adminControllerPage", "admin");
 
-//        userForMod = new User();
-//        model.put("userForMod", userForMod);
-
         List<User> listUsers = userService.listUsers();
         model.put("UserTitle", "Admin Controller page");
         model.put("ListOfUsers", listUsers);
@@ -88,8 +85,6 @@ public class UserController {
 
     @PostMapping(value="/update/{id}")
     public String updateUser(@PathVariable Long id, @ModelAttribute("user") User user){
-        System.out.println("test ----- " + user.getId());
-        System.out.println("test ----- " + user.toString());
         userService.modify(user);
         return "redirect:/admin";
     }
